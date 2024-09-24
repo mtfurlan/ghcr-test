@@ -46,7 +46,7 @@ jobs:
             type=semver,pattern={{raw}} # docker tag with full git tag
             type=semver,pattern=v{{major}} # also do v2
             type=semver,pattern=v{{major}}.{{minor}} # also do v2.0
-            type=raw,value={{$repo.default_branch}},enable={{is_default_branch}}
+            type=raw,value=${{github.event.repository.default_branch}},enable={{is_default_branch}}
 
       # It uses the `context` parameter to define the build's context
       - name: Build and push Docker image
