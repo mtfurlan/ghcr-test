@@ -8,6 +8,9 @@ on:
       - 'v*'
     # build image on PRs for linting reasons
     pull_request:
+      types:
+        - synchronize # when PR branch is updated
+
 
 
 env:
