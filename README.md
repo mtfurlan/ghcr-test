@@ -1,1 +1,1 @@
-GHCR example workflow
+GHCR sample workflow
