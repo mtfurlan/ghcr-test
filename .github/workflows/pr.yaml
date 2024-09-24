@@ -3,8 +3,8 @@ on:
   pull_request:
     types:
       - opened
-      - edited
-      - labeled
+      - synchronize # when PR branch is updated
+      - reopened
 
 # only run one workflow at a time and kill the others
 concurrency:
