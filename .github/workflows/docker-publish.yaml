@@ -6,9 +6,9 @@ on:
       - develop
     tags:
       - 'v*'
-    # build image on PRs for linting reasons
-    pull_request:
+    pull_request: # build image on PRs for linting reasons
       types:
+        - opened
         - synchronize # when PR branch is updated
 
 
@@ -21,18 +21,19 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
 
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    # permissions granted to the `GITHUB_TOKEN`
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # log in to the Container registry registry using the account and password that will publish the packages
-      # Once published, the packages are scoped to the account defined here.
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
       - name: Log in to the Container registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -41,9 +42,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # extract tags and labels that will be applied to the specified image.
-      # The `id` "meta" allows the output of this step to be referenced in a subsequent step.
-      # The `images` value provides the base name for the tags and labels.
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -55,7 +55,7 @@ jobs:
             type=semver,pattern=v{{major}}.{{minor}} # also do v2.0
             type=raw,value=${{github.event.repository.default_branch}},enable={{is_default_branch}}
 
-      # It uses the `context` parameter to define the build's context
+      # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v5
@@ -65,13 +65,3 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built
-      # It increases supply chain security for people who consume the image.
-      # it also pushes another image to the repo, so meh
-      #- name: Generate artifact attestation
-      #  uses: actions/attest-build-provenance@v1
-      #  with:
-      #    subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-      #    subject-digest: ${{ steps.push.outputs.digest }}
-      #    push-to-registry: true
