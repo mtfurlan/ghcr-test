@@ -6,11 +6,11 @@ on:
       - develop
     tags:
       - 'v*'
-    pull_request: # build image on PRs for linting reasons
-      types:
-        - opened
-        - synchronize # when PR branch is updated
-        - reopened
+  pull_request: # build image on PRs for linting reasons
+    types:
+      - opened
+      - synchronize # when PR branch is updated
+      - reopened
 
 
 
